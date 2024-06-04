@@ -16,6 +16,8 @@ class ProductResource extends JsonResource
     {
         return [
             'name' => $this->name,
+            'quantity' => $this->quantity,
+            'price' => $this->price,
             'ingredients' => $this->productIngredients->map(function ($item) {
                 return [
                     'name' => $item->ingredient->name,

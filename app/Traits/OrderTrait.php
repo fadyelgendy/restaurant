@@ -3,12 +3,26 @@
 namespace App\Traits;
 
 use App\Jobs\SendLowStockMailJob;
-use App\Models\Ingredient;
 use App\Models\Order;
-use Illuminate\Support\Facades\Log;
+use App\Models\Product;
 
 trait OrderTrait
 {
+    public function isStockAvailableFor(array $products): bool
+    {
+        foreach ($products as $product) {
+            $productModel = Product::where('id', $product['product_id'])->where('quantity', '>=', $product['quantity'])->first();
+            if (!$productModel) return false;
+
+            foreach ($productModel->productIngredients as $productIngredient) {
+                $ingredientAvailable = $productIngredient->ingredient->stock >= ($productIngredient->quantity * $product['quantity']);
+                if (!$ingredientAvailable) return false;
+            }
+        }
+
+        return true;
+    }
+
     public function updateStock(Order $order): void
     {
         foreach ($order->orderProducts as $orderProduct) {
@@ -22,18 +36,11 @@ trait OrderTrait
                     'consumed' => $ingredient->consumed + ($productIngredient->quantity * $orderProduct->quantity),
                 ]);
 
-                if ($this->levelExceeded($ingredient) && $ingredient->status === \App\Enums\Status::AVAILABLE->value) {
+                if ($ingredient->lowStockReached() && $ingredient->isAvailable()) {
                     SendLowStockMailJob::dispatch($ingredient, $product->merchant);
                     $ingredient->update(['status' => \App\Enums\Status::WARNING->value]);
                 }
             }
         }
-
-        Log::info("Stock updated!");
-    }
-
-    protected function levelExceeded(Ingredient $ingredient): bool
-    {
-        return (($ingredient->consumed * 100) / $ingredient->initial) >= 50;
     }
 }

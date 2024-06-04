@@ -4,16 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
 
 class ProductsController extends Controller
 {
+    use ResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return response()->json(ProductResource::collection(Product::get()));
+        return $this->successResponseJson(['products' => ProductResource::collection(Product::get())]);
     }
 
     /**

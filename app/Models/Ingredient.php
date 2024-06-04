@@ -19,7 +19,16 @@ class Ingredient extends Model
         'initial',
         'stock',
         'consumed',
-        'remaining',
         'status'
     ];
+
+    public function lowStockReached(): bool
+    {
+        return (($this->consumed * 100) / $this->initial) > 50;
+    }
+
+    public function isAvailable(): bool
+    {
+        return $this->status === \App\Enums\Status::AVAILABLE->value;
+    }
 }

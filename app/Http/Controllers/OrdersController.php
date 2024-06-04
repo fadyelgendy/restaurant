@@ -6,31 +6,42 @@ use App\Http\Requests\CreateOrderRequest;
 use App\Models\Order;
 use App\Models\User;
 use App\Traits\OrderTrait;
-use Illuminate\Http\Request;
+use App\Traits\ResponseTrait;
+use Exception;
+use Illuminate\Support\Facades\DB;
 
 class OrdersController extends Controller
 {
-    use OrderTrait;
+    use OrderTrait, ResponseTrait;
 
     public function create(CreateOrderRequest $request)
     {
-        $validated = $request->validated();
+        try {
+            DB::beginTransaction();
 
-        $customer = User::find(2); // TODO: Logged in User
+            $validated = $request->validated();
 
-        $validated['sub_total'] = Order::calculateSubTotal($validated['products']);
-        $validated['total'] = Order::calculateTotal($validated['sub_total']);
+            if (!$this->isStockAvailableFor($validated['products'])) {
+                dd($this->isStockAvailableFor($validated['products']));
+                return $this->failResponseJson(trans('Product and/or it\'s ingredient(s) is Out Of Stock!'));
+            }
 
-        $order = $customer->orders()->create($validated);
-        $order->orderProducts()->createMany($validated['products']);
+            $customer = User::find(2); // TODO: Logged in User
 
-        $this->updateStock($order);
+            $validated['sub_total'] = Order::calculateSubTotal($validated['products']);
+            $validated['total'] = Order::calculateTotal($validated['sub_total']);
 
-        return response()->json([
-            'status' => 201,
-            'data' => [
-                'message' => 'Order Created Successfully'
-            ]
-        ]);
+            $order = $customer->orders()->create($validated);
+            $order->orderProducts()->createMany($validated['products']);
+
+            $this->updateStock($order);
+
+            DB::commit();
+
+            return $this->successResponseJson(trans('Order Created Successfully!'), 201);
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return $this->failResponseJson($exception->getMessage());
+        }
     }
 }

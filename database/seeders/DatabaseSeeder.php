@@ -43,13 +43,13 @@ class DatabaseSeeder extends Seeder
             'merchant_id' => $merchant->id,
             'name' => 'Burger',
             'price' => 100,
-            'quantity' => 5
+            'quantity' => 100
         ]);
 
         \App\Models\ProductIngredient::create([
             'product_id' => $product->id,
             'ingredient_id' => $beef->id,
-            'quantity' => 2500
+            'quantity' => 150
         ]);
 
         \App\Models\ProductIngredient::create([

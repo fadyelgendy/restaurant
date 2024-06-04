@@ -21,7 +21,7 @@ class OrderObserver
      */
     public function created(Order $order): void
     {
-        Log::info('Order Created: #' . $order->order_number);
+        //
     }
 
     /**
