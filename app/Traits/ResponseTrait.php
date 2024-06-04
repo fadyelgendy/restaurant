@@ -13,7 +13,7 @@ trait ResponseTrait
 
     public function successResponseJson(string|array $data = [], int $code = 200): JsonResponse
     {
-        return response()->json($this->failResponse($data, $code));
+        return response()->json($this->successResponse($data, $code));
     }
 
     public function failResponse(string|array $errors = [], int $code = 400): array

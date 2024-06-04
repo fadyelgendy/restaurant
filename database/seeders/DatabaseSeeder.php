@@ -13,7 +13,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $merchant = \App\Models\User::factory(1)->create(['role' => \App\Enums\Role::MERCHANT->value])->first();
-        \App\Models\User::factory(1)->create(['role' => \App\Enums\Role::CUSTOMER->value]);
+        \App\Models\User::factory(1)->create([
+            'email' => 'customer@mail.com',
+            'role' => \App\Enums\Role::CUSTOMER->value
+        ]);
 
         $beef = \App\Models\Ingredient::create([
             'name' => 'Beef',

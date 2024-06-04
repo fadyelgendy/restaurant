@@ -3,11 +3,11 @@
 namespace App\Http\Requests;
 
 use App\Traits\ResponseTrait;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class CreateOrderRequest extends FormRequest
+class LoginRequest extends FormRequest
 {
     use ResponseTrait;
 
@@ -16,16 +16,7 @@ class CreateOrderRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->user() ? true : false;
-    }
-
-    protected function failedAuthorization()
-    {
-        if ($this->is("api/*")) {
-            throw new HttpResponseException($this->failResponseJson(trans('Unauthorized Access!'), 403));
-        }
-
-        return parent::failedAuthorization();
+        return true;
     }
 
     protected function failedValidation(Validator $validator)
@@ -45,9 +36,8 @@ class CreateOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'products' => ['required', 'array', 'min:1'],
-            'products.*.product_id' => ['required', 'numeric', 'exists:products,id'],
-            'products.*.quantity' => ['required', 'numeric', 'gt:0']
+            'email' => ['required', 'email', 'exists:users,email'],
+            'password' => ['required']
         ];
     }
 }

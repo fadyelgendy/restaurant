@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +17,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// handle API unauthenticated Fails
+Route::get('api-login', function (Request $request) {
+    return response()->json([
+        'status' => 401,
+        'data' => ['error' => trans('Unauthenticated!')]
+    ]);
+})->name('api.login');

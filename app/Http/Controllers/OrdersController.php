@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Traits\OrderTrait;
 use App\Traits\ResponseTrait;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class OrdersController extends Controller
@@ -26,7 +27,7 @@ class OrdersController extends Controller
                 return $this->failResponseJson(trans('Product and/or it\'s ingredient(s) is Out Of Stock!'));
             }
 
-            $customer = User::find(2); // TODO: Logged in User
+            $customer = Auth::user();
 
             $validated['sub_total'] = Order::calculateSubTotal($validated['products']);
             $validated['total'] = Order::calculateTotal($validated['sub_total']);
