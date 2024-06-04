@@ -24,7 +24,7 @@ class Ingredient extends Model
 
     public function lowStockReached(): bool
     {
-        return (($this->consumed * 100) / $this->initial) > 50;
+        return (($this->consumed * 100) / $this->initial) >= 50;
     }
 
     public function isAvailable(): bool
