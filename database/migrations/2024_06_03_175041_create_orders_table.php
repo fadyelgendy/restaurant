@@ -13,15 +13,13 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('merhcant_id');
+            $table->foreignId('customer_id')->constrained('users');
             $table->string('order_number');
             $table->unsignedDouble('sub_total');
             $table->unsignedDouble('tax');
             $table->unsignedDouble('total');
             $table->enum('status', ['pending', 'inprogress', 'proccessed', 'completed'])->default('pending');
             $table->timestamps();
-
-            $table->foreign('merhcant_id')->references('id')->on('users');
         });
     }
 

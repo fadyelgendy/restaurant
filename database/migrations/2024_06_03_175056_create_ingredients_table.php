@@ -17,7 +17,6 @@ return new class extends Migration
             $table->bigInteger('initial');
             $table->bigInteger('stock');
             $table->bigInteger('consumed');
-            $table->bigInteger('remaining');
             $table->enum('status', ['available', 'warning', 'out_of_stock'])->default('available');
             $table->timestamps();
         });

@@ -13,7 +13,10 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('merchant_id')->constrained('users');
             $table->string('name');
+            $table->double('price');
+            $table->bigInteger('quantity');
             $table->timestamps();
         });
     }

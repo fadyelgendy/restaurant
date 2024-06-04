@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\User::factory(1)->create(['role' => \App\Enums\Role::MERCHANT->value]);
+        $merchant = \App\Models\User::factory(1)->create(['role' => \App\Enums\Role::MERCHANT->value])->first();
         \App\Models\User::factory(1)->create(['role' => \App\Enums\Role::CUSTOMER->value]);
 
         $beef = \App\Models\Ingredient::create([
@@ -20,7 +20,6 @@ class DatabaseSeeder extends Seeder
             'initial' => 20000,
             'stock' => 20000,
             'consumed' => 0,
-            'remaining' => 20000,
             'status' => \App\Enums\Status::AVAILABLE->value
         ]);
 
@@ -29,7 +28,6 @@ class DatabaseSeeder extends Seeder
             'initial' => 5000,
             'stock' => 5000,
             'consumed' => 0,
-            'remaining' => 5000,
             'status' => \App\Enums\Status::AVAILABLE->value
         ]);
 
@@ -38,18 +36,20 @@ class DatabaseSeeder extends Seeder
             'initial' => 1000,
             'stock' => 1000,
             'consumed' => 0,
-            'remaining' => 1000,
             'status' => \App\Enums\Status::AVAILABLE->value
         ]);
 
         $product = \App\Models\Product::create([
-            'name' => 'Burger'
+            'merchant_id' => $merchant->id,
+            'name' => 'Burger',
+            'price' => 100,
+            'quantity' => 5
         ]);
 
         \App\Models\ProductIngredient::create([
             'product_id' => $product->id,
             'ingredient_id' => $beef->id,
-            'quantity' => 150
+            'quantity' => 2500
         ]);
 
         \App\Models\ProductIngredient::create([

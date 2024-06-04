@@ -13,13 +13,10 @@ return new class extends Migration
     {
         Schema::create('product_ingredients', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id');
-            $table->foreignId('ingredient_id');
+            $table->foreignId('product_id')->constrained('products');
+            $table->foreignId('ingredient_id')->constrained('ingredients');
             $table->bigInteger('quantity');
             $table->timestamps();
-
-            $table->foreign('product_id')->references('id')->on('products');
-            $table->foreign('ingredient_id')->references('id')->on('ingredients');
         });
     }
 
