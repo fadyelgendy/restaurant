@@ -16,7 +16,7 @@ class CreateOrderRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->user() ? true : false;
+        return auth()->user() && auth()->user()->role == \App\Enums\Role::CUSTOMER->value;
     }
 
     protected function failedAuthorization()
