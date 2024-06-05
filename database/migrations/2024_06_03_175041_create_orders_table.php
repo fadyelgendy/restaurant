@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedDouble('sub_total');
             $table->unsignedDouble('tax');
             $table->unsignedDouble('total');
-            $table->enum('status', ['pending', 'inprogress', 'proccessed', 'completed'])->default('pending');
+            $table->enum('status', ['pending', 'inprogress', 'proccessed', 'completed', 'cancelled'])->default('pending');
             $table->timestamps();
         });
     }

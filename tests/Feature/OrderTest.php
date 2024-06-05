@@ -3,11 +3,11 @@
 namespace Tests\Feature;
 
 use App\Jobs\SendLowStockMailJob;
-use App\Mail\LowLevelStockMail;
 use App\Models\Order;
+use App\Models\Product;
+use Database\Seeders\ProductSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
@@ -17,19 +17,10 @@ class OrderTest extends TestCase
 
     public function test_order_created_onlu_by_customer_user(): void
     {
+        $this->seed(ProductSeeder::class);
+        
         $merchant = \App\Models\User::factory()->create(['role' => \App\Enums\Role::MERCHANT->value]);
-
-        $beef = \App\Models\Ingredient::factory()->create(['name' => 'Beef', 'initial' => 20000, 'stock' => 20000, 'consumed' => 0]);
-        $cheese = \App\Models\Ingredient::factory()->create(['name' => 'Cheese', 'initial' => 5000, 'stock' => 5000, 'consumed' => 0]);
-        $onion = \App\Models\Ingredient::factory()->create(['name' => 'Onion', 'initial' => 1000, 'stock' => 1000, 'consumed' => 0]);
-
-        $product = $merchant->products()->create(['name' => 'Burger', 'price' => 150, 'quantity' => 100]);
-        $product->productIngredients()->createMany([
-            ['ingredient_id' => $beef->id, 'quantity' => 150],
-            ['ingredient_id' => $cheese->id, 'quantity' => 20],
-            ['ingredient_id' => $onion->id, 'quantity' => 30],
-        ]);
-
+        $product = Product::find(1);
 
         $response = $this->actingAs($merchant)->post('api/orders', [
             'products' => [
@@ -135,19 +126,10 @@ class OrderTest extends TestCase
 
     public function test_order_created_successfully(): void
     {
+        $this->seed(ProductSeeder::class);
+        
         $user = \App\Models\User::factory()->create(['role' => \App\Enums\Role::CUSTOMER->value]);
-        $merchant = \App\Models\User::factory()->create(['role' => \App\Enums\Role::MERCHANT->value]);
-
-        $beef = \App\Models\Ingredient::factory()->create(['name' => 'Beef']);
-        $cheese = \App\Models\Ingredient::factory()->create(['name' => 'Cheese']);
-        $onion = \App\Models\Ingredient::factory()->create(['name' => 'Onion']);
-
-        $product = $merchant->products()->create(['name' => 'Burger', 'price' => 150, 'quantity' => 100]);
-        $product->productIngredients()->createMany([
-            ['ingredient_id' => $beef->id, 'quantity' => 150],
-            ['ingredient_id' => $cheese->id, 'quantity' => 10],
-            ['ingredient_id' => $onion->id, 'quantity' => 30],
-        ]);
+        $product = Product::find(1);
 
 
         $response = $this->actingAs($user)->post('api/orders', [
@@ -171,20 +153,10 @@ class OrderTest extends TestCase
 
     public function test_order_created_successfully_and_stock_updated(): void
     {
+        $this->seed(ProductSeeder::class);
+        
         $user = \App\Models\User::factory()->create(['role' => \App\Enums\Role::CUSTOMER->value]);
-        $merchant = \App\Models\User::factory()->create(['role' => \App\Enums\Role::MERCHANT->value]);
-
-        $beef = \App\Models\Ingredient::factory()->create(['name' => 'Beef', 'initial' => 20000, 'stock' => 20000, 'consumed' => 0]);
-        $cheese = \App\Models\Ingredient::factory()->create(['name' => 'Cheese', 'initial' => 5000, 'stock' => 5000, 'consumed' => 0]);
-        $onion = \App\Models\Ingredient::factory()->create(['name' => 'Onion', 'initial' => 1000, 'stock' => 1000, 'consumed' => 0]);
-
-        $product = $merchant->products()->create(['name' => 'Burger', 'price' => 150, 'quantity' => 100]);
-        $product->productIngredients()->createMany([
-            ['ingredient_id' => $beef->id, 'quantity' => 150],
-            ['ingredient_id' => $cheese->id, 'quantity' => 20],
-            ['ingredient_id' => $onion->id, 'quantity' => 30],
-        ]);
-
+        $product = Product::find(1);
 
         $response = $this->actingAs($user)->post('api/orders', [
             'products' => [
@@ -201,19 +173,19 @@ class OrderTest extends TestCase
             "data" => ["message" => "Order created successfully!"]
         ]);
 
-        $__beef = \App\Models\Ingredient::find($beef->id);
-        $this->assertEquals($__beef->consumed, 300);
-        $this->assertEquals($__beef->stock, ($beef->initial - $__beef->consumed));
+        $beef = \App\Models\Ingredient::where('name', 'Beef')->first();
+        $this->assertEquals($beef->consumed, 300);
+        $this->assertEquals($beef->stock, ($beef->initial - $beef->consumed));
 
-        $__cheese = \App\Models\Ingredient::find($cheese->id);
-        $this->assertEquals($__cheese->consumed, 40);
-        $this->assertEquals($__cheese->stock, $cheese->initial - $__cheese->consumed);
+        $cheese = \App\Models\Ingredient::where('name', 'Cheese')->first();
+        $this->assertEquals($cheese->consumed, 40);
+        $this->assertEquals($cheese->stock, $cheese->initial - $cheese->consumed);
 
-        $__onion = \App\Models\Ingredient::find($onion->id);
-        $this->assertEquals($__onion->consumed, 60);
-        $this->assertEquals($__onion->stock, $onion->initial - $__onion->consumed);
+        $onion = \App\Models\Ingredient::where('name', 'Onion')->first();
+        $this->assertEquals($onion->consumed, 60);
+        $this->assertEquals($onion->stock, $onion->initial - $onion->consumed);
 
-        $__product = \App\Models\Product::find($product->id);
+        $__product = Product::find($product->id);
         $this->assertEquals($__product->quantity, $product->quantity - 2);
     }
 
@@ -271,20 +243,10 @@ class OrderTest extends TestCase
 
     public function test_order_created_successfully_and_order_detials_is_correct(): void
     {
+        $this->seed(ProductSeeder::class);
+
         $user = \App\Models\User::factory()->create(['role' => \App\Enums\Role::CUSTOMER->value]);
-        $merchant = \App\Models\User::factory()->create(['role' => \App\Enums\Role::MERCHANT->value]);
-
-        $beef = \App\Models\Ingredient::factory()->create(['name' => 'Beef', 'initial' => 20000, 'stock' => 20000, 'consumed' => 0]);
-        $cheese = \App\Models\Ingredient::factory()->create(['name' => 'Cheese', 'initial' => 5000, 'stock' => 5000, 'consumed' => 0]);
-        $onion = \App\Models\Ingredient::factory()->create(['name' => 'Onion', 'initial' => 1000, 'stock' => 1000, 'consumed' => 0]);
-
-        $product = $merchant->products()->create(['name' => 'Burger', 'price' => 150, 'quantity' => 100]);
-        $product->productIngredients()->createMany([
-            ['ingredient_id' => $beef->id, 'quantity' => 150],
-            ['ingredient_id' => $cheese->id, 'quantity' => 20],
-            ['ingredient_id' => $onion->id, 'quantity' => 30],
-        ]);
-
+        $product = Product::find(1);
 
         $response = $this->actingAs($user)->post('api/orders', [
             'products' => [
@@ -306,5 +268,6 @@ class OrderTest extends TestCase
         $this->assertEquals($order->sub_total, 300);
         $this->assertEquals($order->tax, Order::TAX);
         $this->assertEquals($order->total, ($order->sub_total + ($order->sub_total * (Order::TAX / 100))));
+        $this->assertEquals($order->status, \App\Enums\Status::PENDING->value);
     }
 }

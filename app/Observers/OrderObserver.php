@@ -21,7 +21,7 @@ class OrderObserver
      */
     public function created(Order $order): void
     {
-        //
+        // TODO: Notigy customer & merchant Via Email
     }
 
     /**
@@ -29,7 +29,8 @@ class OrderObserver
      */
     public function updated(Order $order): void
     {
-        //
+        // TODO: Notify Customer
+        // TODO: Notify Merchant if for example Order Cancelled
     }
 
     /**
