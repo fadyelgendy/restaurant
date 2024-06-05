@@ -23,7 +23,6 @@ class OrdersController extends Controller
             $validated = $request->validated();
 
             if (!$this->isStockAvailableFor($validated['products'])) {
-                dd($this->isStockAvailableFor($validated['products']));
                 return $this->failResponseJson(trans('Product and/or it\'s ingredient(s) is Out Of Stock!'));
             }
 

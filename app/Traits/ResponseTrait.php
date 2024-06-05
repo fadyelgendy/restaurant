@@ -8,12 +8,12 @@ trait ResponseTrait
 {
     public function failResponseJson(string|array $errors = [], int $code = 400): JsonResponse
     {
-        return response()->json($this->failResponse($errors, $code));
+        return response()->json($this->failResponse($errors, $code), $code);
     }
 
     public function successResponseJson(string|array $data = [], int $code = 200): JsonResponse
     {
-        return response()->json($this->successResponse($data, $code));
+        return response()->json($this->successResponse($data, $code), $code);
     }
 
     public function failResponse(string|array $errors = [], int $code = 400): array

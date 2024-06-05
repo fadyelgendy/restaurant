@@ -21,7 +21,6 @@ class IngredientFactory extends Factory
             'initial' => fake()->numberBetween(1000, 10000),
             'stock' => fake()->numberBetween(1000, 10000),
             'consumed' => fake()->numberBetween(1, 1000),
-            'remaining' => fake()->numberBetween(1000, 9000),
             'status' => \App\Enums\Status::AVAILABLE->value
         ];
     }

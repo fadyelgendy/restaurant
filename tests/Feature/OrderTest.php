@@ -60,12 +60,19 @@ class OrderTest extends TestCase
     public function test_order_cannot_be_created_with_one_ingredient_is_out_of_stock(): void
     {
         $user = \App\Models\User::factory()->create(['role' => \App\Enums\Role::CUSTOMER->value]);
+        $merchant = \App\Models\User::factory()->create(['role' => \App\Enums\Role::MERCHANT->value]);
 
-        $beef = \App\Models\Ingredient::factory()->create(['name' => 'Beef', 'quantity' => 0]);
-        $cheese = \App\Models\Ingredient::factory()->create(['name' => 'Cheese', 'quantity' => 5000]);
-        $onion = \App\Models\Ingredient::factory()->create(['name' => 'Onion', 'quantity' => 1000]);
+        $beef = \App\Models\Ingredient::factory()->create([
+            'initial' => 10000,
+            'stock' => 0,
+            'consumed' => 10000,
+            'status' => \App\Enums\Status::OUT_OF_STOCK->value
+        ]);
 
-        $product = \App\Models\Product::factory()->create(['name' => 'Burger']);
+        $cheese = \App\Models\Ingredient::factory()->create(['name' => 'Cheese']);
+        $onion = \App\Models\Ingredient::factory()->create(['name' => 'Onion']);
+
+        $product = \App\Models\Product::factory()->create(['merchant_id' => $merchant->id,  'name' => 'Burger']);
         $product->productIngredients()->createMany([
             ['product_id' => $product->id, 'ingredient_id' => $beef->id, 'quantity' => 150],
             ['product_id' => $product->id, 'ingredient_id' => $cheese->id, 'quantity' => 10],
@@ -91,6 +98,5 @@ class OrderTest extends TestCase
                 ]
             ]
         ]);
-
     }
 }
