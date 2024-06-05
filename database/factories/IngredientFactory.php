@@ -20,7 +20,7 @@ class IngredientFactory extends Factory
             'name' => fake()->name(),
             'initial' => fake()->numberBetween(1000, 10000),
             'stock' => fake()->numberBetween(1000, 10000),
-            'consumed' => fake()->numberBetween(1, 1000),
+            'consumed' => 0,
             'status' => \App\Enums\Status::AVAILABLE->value
         ];
     }

@@ -38,7 +38,7 @@ class OrdersController extends Controller
 
             DB::commit();
 
-            return $this->successResponseJson(trans('Order Created Successfully!'), 201);
+            return $this->successResponseJson(trans('Order created successfully!'), 201);
         } catch (Exception $exception) {
             DB::rollBack();
             return $this->failResponseJson($exception->getMessage());

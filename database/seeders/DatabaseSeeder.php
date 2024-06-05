@@ -18,53 +18,16 @@ class DatabaseSeeder extends Seeder
             'role' => \App\Enums\Role::CUSTOMER->value
         ]);
 
-        $beef = \App\Models\Ingredient::create([
-            'name' => 'Beef',
-            'initial' => 20000,
-            'stock' => 20000,
-            'consumed' => 0,
-            'status' => \App\Enums\Status::AVAILABLE->value
-        ]);
+        $beef = \App\Models\Ingredient::factory()->create(['name' => 'Beef', 'initial' => 20000, 'stock' => 20000]);
+        $cheese = \App\Models\Ingredient::factory()->create(['name' => 'Cheese', 'initial' => 5000, 'stock' => 5000]);
+        $onion = \App\Models\Ingredient::factory()->create(['name' => 'Onion', 'initial' => 1000, 'stock' => 1000]);
 
-        $cheese = \App\Models\Ingredient::create([
-            'name' => 'Cheese',
-            'initial' => 5000,
-            'stock' => 5000,
-            'consumed' => 0,
-            'status' => \App\Enums\Status::AVAILABLE->value
-        ]);
+        $product = $merchant->products()->create(['name' => 'Burger', 'price' => 150, 'quantity' => 100]);
 
-        $onion = \App\Models\Ingredient::create([
-            'name' => 'Onion',
-            'initial' => 1000,
-            'stock' => 1000,
-            'consumed' => 0,
-            'status' => \App\Enums\Status::AVAILABLE->value
-        ]);
-
-        $product = \App\Models\Product::create([
-            'merchant_id' => $merchant->id,
-            'name' => 'Burger',
-            'price' => 100,
-            'quantity' => 100
-        ]);
-
-        \App\Models\ProductIngredient::create([
-            'product_id' => $product->id,
-            'ingredient_id' => $beef->id,
-            'quantity' => 150
-        ]);
-
-        \App\Models\ProductIngredient::create([
-            'product_id' => $product->id,
-            'ingredient_id' => $cheese->id,
-            'quantity' => 30
-        ]);
-
-        \App\Models\ProductIngredient::create([
-            'product_id' => $product->id,
-            'ingredient_id' => $onion->id,
-            'quantity' => 20
+        $product->productIngredients()->createMany([
+            ['ingredient_id' => $beef->id, 'quantity' => 150],
+            ['ingredient_id' => $cheese->id, 'quantity' => 30],
+            ['ingredient_id' => $onion->id, 'quantity' => 20]
         ]);
     }
 }

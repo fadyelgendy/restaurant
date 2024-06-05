@@ -23,5 +23,5 @@ Route::get('api-login', function (Request $request) {
     return response()->json([
         'status' => 401,
         'data' => ['error' => trans('Unauthenticated!')]
-    ]);
+    ], 401);
 })->name('api.login');

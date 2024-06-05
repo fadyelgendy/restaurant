@@ -63,6 +63,7 @@ class OrderTest extends TestCase
         $merchant = \App\Models\User::factory()->create(['role' => \App\Enums\Role::MERCHANT->value]);
 
         $beef = \App\Models\Ingredient::factory()->create([
+            'name' => 'Beef',
             'initial' => 10000,
             'stock' => 0,
             'consumed' => 10000,
@@ -72,11 +73,43 @@ class OrderTest extends TestCase
         $cheese = \App\Models\Ingredient::factory()->create(['name' => 'Cheese']);
         $onion = \App\Models\Ingredient::factory()->create(['name' => 'Onion']);
 
-        $product = \App\Models\Product::factory()->create(['merchant_id' => $merchant->id,  'name' => 'Burger']);
+        $product = $merchant->products()->create(['name' => 'Burger', 'price' => 100, 'quantity' => 100]);
         $product->productIngredients()->createMany([
-            ['product_id' => $product->id, 'ingredient_id' => $beef->id, 'quantity' => 150],
-            ['product_id' => $product->id, 'ingredient_id' => $cheese->id, 'quantity' => 10],
-            ['product_id' => $product->id, 'ingredient_id' => $onion->id, 'quantity' => 30],
+            ['ingredient_id' => $beef->id, 'quantity' => 150],
+            ['ingredient_id' => $cheese->id, 'quantity' => 10],
+            ['ingredient_id' => $onion->id, 'quantity' => 30],
+        ]);
+
+        $response = $this->actingAs($user)->post('api/orders', [
+            'products' => [
+                [
+                    'product_id' => $product->id,
+                    'quantity' => 2
+                ]
+            ]
+        ]);
+
+        $response->assertStatus(400);
+        $response->assertExactJson([
+            "status" => 400,
+            "errors" => ["error" => "Product and/or it's ingredient(s) is Out Of Stock!"]
+        ]);
+    }
+
+    public function test_order_created_successfully(): void
+    {
+        $user = \App\Models\User::factory()->create(['role' => \App\Enums\Role::CUSTOMER->value]);
+        $merchant = \App\Models\User::factory()->create(['role' => \App\Enums\Role::MERCHANT->value]);
+
+        $beef = \App\Models\Ingredient::factory()->create(['name' => 'Beef']);
+        $cheese = \App\Models\Ingredient::factory()->create(['name' => 'Cheese']);
+        $onion = \App\Models\Ingredient::factory()->create(['name' => 'Onion']);
+
+        $product = $merchant->products()->create(['name' => 'Burger', 'price' => 150, 'quantity' => 100]);
+        $product->productIngredients()->createMany([
+            ['ingredient_id' => $beef->id, 'quantity' => 150],
+            ['ingredient_id' => $cheese->id, 'quantity' => 10],
+            ['ingredient_id' => $onion->id, 'quantity' => 30],
         ]);
 
 
@@ -89,14 +122,45 @@ class OrderTest extends TestCase
             ]
         ]);
 
-        $response->assertStatus(400);
-        $response->json([
-            "status" => 400,
-            "errors" => [
-                "products.0.product_id" => [
-                    "The selected products.0.product_id is invalid."
+        $response->assertStatus(201);
+        $response->assertExactJson([
+            "status" => 201,
+            "data" => ["message" => "Order created successfully!"]
+        ]);
+    }
+
+    public function test_order_created_successfully_and_stock_updated(): void
+    {
+        $user = \App\Models\User::factory()->create(['role' => \App\Enums\Role::CUSTOMER->value]);
+        $merchant = \App\Models\User::factory()->create(['role' => \App\Enums\Role::MERCHANT->value]);
+
+        $beef = \App\Models\Ingredient::factory()->create(['name' => 'Beef']);
+        $cheese = \App\Models\Ingredient::factory()->create(['name' => 'Cheese']);
+        $onion = \App\Models\Ingredient::factory()->create(['name' => 'Onion']);
+
+        $product = $merchant->products()->create(['name' => 'Burger', 'price' => 150, 'quantity' => 100]);
+        $product->productIngredients()->createMany([
+            ['ingredient_id' => $beef->id, 'quantity' => 150],
+            ['ingredient_id' => $cheese->id, 'quantity' => 10],
+            ['ingredient_id' => $onion->id, 'quantity' => 30],
+        ]);
+
+
+        $response = $this->actingAs($user)->post('api/orders', [
+            'products' => [
+                [
+                    'product_id' => $product->id,
+                    'quantity' => 2
                 ]
             ]
         ]);
+
+        $response->assertStatus(201);
+        $response->assertExactJson([
+            "status" => 201,
+            "data" => ["message" => "Order created successfully!"]
+        ]);
+
+        $this->assertEquals($beef->consumed, 300);
     }
 }
